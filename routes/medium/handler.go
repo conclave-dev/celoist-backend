@@ -11,7 +11,7 @@ import (
 const mediumFeedBase = "https://medium.com/feed/"
 
 func getCelo(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(fmt.Sprintf("https://api.rss2json.com/v1/api.json?rss_url=%s%s", mediumFeedBase, "celohq"))
+	resp, err := http.Get(fmt.Sprintf("https://api.rss2json.com/v1/api.json?rss_url=%s%s", mediumFeedBase, "celoorg"))
 	if err != nil {
 		util.RespondWithError(err, r, w)
 	}
