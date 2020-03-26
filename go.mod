@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/didip/tollbooth v4.0.2+incompatible
+	github.com/ethereum/go-ethereum v1.9.12
 	github.com/getsentry/sentry-go v0.5.1
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
