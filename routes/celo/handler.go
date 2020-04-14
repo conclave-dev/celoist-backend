@@ -82,10 +82,10 @@ func getElection(election string) ([]byte, error) {
 	})
 }
 
-func setElection(opts *bind.CallOpts, election string) ([]byte, error) {
+func setElection(opts *bind.CallOpts, election string) (kvstore.Election, error) {
 	groups, err := getTotalVotesForEligibleValidatorGroups(opts)
 	if err != nil {
-		return nil, err
+		return kvstore.Election{}, err
 	}
 
 	data := kvstore.Election{
@@ -95,12 +95,10 @@ func setElection(opts *bind.CallOpts, election string) ([]byte, error) {
 
 	_, err = kvstore.SetElection(election, data)
 	if err != nil {
-		return nil, err
+		return kvstore.Election{}, err
 	}
 
-	return json.Marshal(types.JSONResponse{
-		Data: data,
-	})
+	return data, nil
 }
 
 func handleElection(w http.ResponseWriter, r *http.Request) {
@@ -127,6 +125,17 @@ func handleElection(w http.ResponseWriter, r *http.Request) {
 		util.RespondWithError(err, r, w)
 	}
 
-	util.RespondWithData(election, w)
+	res, err := json.Marshal(types.JSONResponse{
+		Data: struct {
+			Election kvstore.Election `json:"election"`
+		}{
+			Election: election,
+		},
+	})
+	if err != nil {
+		util.RespondWithError(err, r, w)
+	}
+
+	util.RespondWithData(res, w)
 	return
 }
