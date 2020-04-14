@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/conclave-dev/celoist-backend/routes/celo"
 	"github.com/conclave-dev/celoist-backend/routes/medium"
 	"github.com/gorilla/mux"
 )
@@ -17,5 +18,6 @@ func SetUpRoutes(router *mux.Router) {
 	router.HandleFunc("/health", healthCheck)
 
 	// Add all routes and other actions required for setup
+	celo.AddRoutes(router)
 	medium.AddRoutes(router)
 }
