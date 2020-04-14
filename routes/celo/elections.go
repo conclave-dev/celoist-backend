@@ -63,6 +63,7 @@ func setElection(opts *bind.CallOpts, election string) (kvstore.Election, error)
 
 func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvstore.Groups, error) {
 	contract := getValidatorsContract()
+	accountsContract := getAccountsContract()
 	groups := make(kvstore.Groups)
 
 	fetchGroup := func(groupAddress common.Address, wg *sync.WaitGroup, mu *sync.Mutex) (err error) {
@@ -75,9 +76,18 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 			return
 		}
 
+		name, err := accountsContract.GetName(opts, groupAddress)
+		if err != nil {
+			return
+		}
+
 		members, err := getMembers(opts, memberAddresses)
+		if err != nil {
+			return
+		}
 
 		groups[groupAddress] = kvstore.Group{
+			Name:                name,
 			Address:             groupAddress,
 			Commission:          commission,
 			NextCommission:      nextCommission,
@@ -107,6 +117,7 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 
 func getMembers(opts *bind.CallOpts, memberAddresses kvstore.MemberAddresses) (kvstore.Members, error) {
 	contract := getValidatorsContract()
+	accountsContract := getAccountsContract()
 	members := make(kvstore.Members)
 
 	fetchGroup := func(memberAddress common.Address, wg *sync.WaitGroup, mu *sync.Mutex) (err error) {
@@ -119,7 +130,10 @@ func getMembers(opts *bind.CallOpts, memberAddresses kvstore.MemberAddresses) (k
 			return
 		}
 
+		name, err := accountsContract.GetName(opts, memberAddress)
+
 		members[memberAddress] = kvstore.Member{
+			Name:           name,
 			Address:        memberAddress,
 			ECDSAPublicKey: validator.EcdsaPublicKey,
 			BLSPublicKey:   validator.BlsPublicKey,

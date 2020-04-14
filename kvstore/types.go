@@ -18,6 +18,7 @@ type Election struct {
 }
 
 type Group struct {
+	Name                string          `json:"name"`
 	Address             common.Address  `json:"address"`
 	Commission          *big.Int        `json:"commission"`
 	NextCommission      *big.Int        `json:"nextCommission"`
@@ -29,6 +30,7 @@ type Group struct {
 }
 
 type Member struct {
+	Name           string         `json:"name"`
 	Address        common.Address `json:"address"`
 	Signer         common.Address `json:"signer"`
 	Score          *big.Int       `json:"score"`

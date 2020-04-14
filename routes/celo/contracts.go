@@ -5,9 +5,21 @@ import (
 
 	"github.com/conclave-dev/go-celo/client"
 	"github.com/conclave-dev/go-celo/core/celo"
+	"github.com/conclave-dev/go-celo/core/celo/common/accounts"
 	"github.com/conclave-dev/go-celo/core/celo/governance/election"
 	"github.com/conclave-dev/go-celo/core/celo/governance/validators"
 )
+
+func getAccountsContract() *accounts.Accounts {
+	// Use the predefined address for the RegistryContract
+	contractAddress := celo.GetContractAddress(celo.Accounts, client.EthClient)
+	contract, err := accounts.NewAccounts(contractAddress, client.EthClient)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return contract
+}
 
 func getElectionContract() *election.Election {
 	// Use the predefined address for the RegistryContract
