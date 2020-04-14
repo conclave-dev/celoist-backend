@@ -8,10 +8,12 @@ import (
 
 type GroupAddresses []common.Address
 type MemberAddresses []common.Address
+type Groups map[common.Address]Group
 
 type Election struct {
 	GroupAddresses GroupAddresses `json:"groupAddresses"`
 	GroupVotes     []*big.Int     `json:"groupVotes"`
+	Groups         Groups         `json:"groups"`
 }
 
 type Group struct {
@@ -19,7 +21,6 @@ type Group struct {
 	Commission          *big.Int        `json:"commission"`
 	NextCommission      *big.Int        `json:"nextCommission"`
 	NextCommissionBlock *big.Int        `json:"nextCommissionBlock"`
-	SizeHistory         []*big.Int      `json:"sizeHistory"`
 	MemberAddresses     MemberAddresses `json:"memberAddresses"`
 	LastSlash           *big.Int        `json:"lastSlashed"`
 	SlashMultiplier     *big.Int        `json:"slashingMultiplier"`
