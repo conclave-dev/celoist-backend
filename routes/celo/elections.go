@@ -70,19 +70,22 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 
 		defer wg.Done()
 
-		members, commission, nextCommission, nextCommissionBlock, _, slashMultiplier, lastSlash, err := contract.GetValidatorGroup(opts, groupAddress)
+		memberAddresses, commission, nextCommission, nextCommissionBlock, _, slashMultiplier, lastSlash, err := contract.GetValidatorGroup(opts, groupAddress)
 		if err != nil {
 			return
 		}
 
+		members, err := getMembers(opts, memberAddresses)
+
 		groups[groupAddress] = kvstore.Group{
 			Address:             groupAddress,
-			MemberAddresses:     members,
 			Commission:          commission,
 			NextCommission:      nextCommission,
 			NextCommissionBlock: nextCommissionBlock,
-			SlashMultiplier:     slashMultiplier,
+			MemberAddresses:     memberAddresses,
+			Members:             members,
 			LastSlash:           lastSlash,
+			SlashMultiplier:     slashMultiplier,
 		}
 
 		mu.Unlock()
@@ -100,4 +103,43 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 	wg.Wait()
 
 	return groups, nil
+}
+
+func getMembers(opts *bind.CallOpts, memberAddresses kvstore.MemberAddresses) (kvstore.Members, error) {
+	contract := getValidatorsContract()
+	members := make(kvstore.Members)
+
+	fetchGroup := func(memberAddress common.Address, wg *sync.WaitGroup, mu *sync.Mutex) (err error) {
+		mu.Lock()
+
+		defer wg.Done()
+
+		validator, err := contract.GetValidator(opts, memberAddress)
+		if err != nil {
+			return
+		}
+
+		members[memberAddress] = kvstore.Member{
+			Address:        memberAddress,
+			ECDSAPublicKey: validator.EcdsaPublicKey,
+			BLSPublicKey:   validator.BlsPublicKey,
+			Score:          validator.Score,
+			Signer:         validator.Signer,
+		}
+
+		mu.Unlock()
+		return
+	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	for _, memberAddress := range memberAddresses {
+		wg.Add(1)
+		go fetchGroup(memberAddress, &wg, &mu)
+	}
+
+	wg.Wait()
+
+	return members, nil
 }

@@ -9,6 +9,7 @@ import (
 type GroupAddresses []common.Address
 type MemberAddresses []common.Address
 type Groups map[common.Address]Group
+type Members map[common.Address]Member
 
 type Election struct {
 	GroupAddresses GroupAddresses `json:"groupAddresses"`
@@ -22,6 +23,7 @@ type Group struct {
 	NextCommission      *big.Int        `json:"nextCommission"`
 	NextCommissionBlock *big.Int        `json:"nextCommissionBlock"`
 	MemberAddresses     MemberAddresses `json:"memberAddresses"`
+	Members             Members         `json:"members"`
 	LastSlash           *big.Int        `json:"lastSlashed"`
 	SlashMultiplier     *big.Int        `json:"slashingMultiplier"`
 }
@@ -29,7 +31,6 @@ type Group struct {
 type Member struct {
 	Address        common.Address `json:"address"`
 	Signer         common.Address `json:"signer"`
-	Affiliation    common.Address `json:"affiliation"`
 	Score          *big.Int       `json:"score"`
 	ECDSAPublicKey []byte         `json:"ecdsaPublicKey"`
 	BLSPublicKey   []byte         `json:"blsPublicKey"`
