@@ -27,6 +27,7 @@ type Group struct {
 	Members             Members         `json:"members"`
 	LastSlash           *big.Int        `json:"lastSlashed"`
 	SlashMultiplier     *big.Int        `json:"slashingMultiplier"`
+	Capacity            *big.Int        `json:"capacity"`
 }
 
 type Member struct {

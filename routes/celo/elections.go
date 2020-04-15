@@ -63,6 +63,7 @@ func setElection(opts *bind.CallOpts, election string) (kvstore.Election, error)
 
 func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvstore.Groups, error) {
 	contract := getValidatorsContract()
+	electionContract := getElectionContract()
 	accountsContract := getAccountsContract()
 	groups := make(kvstore.Groups)
 
@@ -81,6 +82,8 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 			return
 		}
 
+		capacity, err := electionContract.GetNumVotesReceivable(opts, groupAddress)
+
 		members, err := getMembers(opts, memberAddresses)
 		if err != nil {
 			return
@@ -96,6 +99,7 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 			Members:             members,
 			LastSlash:           lastSlash,
 			SlashMultiplier:     slashMultiplier,
+			Capacity:            capacity,
 		}
 
 		mu.Unlock()
