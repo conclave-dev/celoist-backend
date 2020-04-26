@@ -7,6 +7,17 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
+func init() {
+	// Get synced block number on load and set to 0 if does not exist
+	_, err := GetSyncedBlockNumber()
+	if err != nil {
+		_, err := SetSyncedBlockNumber(big.NewInt(0))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 // DoesBlockExist checks whether a block already exists at a given number
 func DoesBlockExist(n *big.Int) bool {
 	b, err := HExists(BLOCKS, n.String())
@@ -32,12 +43,12 @@ func DeleteBlock(n *big.Int) (interface{}, error) {
 	return HDelete(BLOCKS, n.String())
 }
 
-// SetBlock stores block data at a given number
+// SetSyncedBlockNumber stores block data at a given number
 func SetSyncedBlockNumber(n *big.Int) (interface{}, error) {
 	return Set(SYNCED_BLOCK_NUMBER, n.String())
 }
 
-// GetBlock retrieves block data at a given number
+// GetSyncedBlockNumber retrieves block data at a given number
 func GetSyncedBlockNumber() (string, error) {
 	return Get(SYNCED_BLOCK_NUMBER)
 }

@@ -1,6 +1,7 @@
 package celo
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/conclave-dev/celoist-backend/util"
@@ -39,4 +40,19 @@ func getCallOpts(w http.ResponseWriter, r *http.Request) (callOpts *bind.CallOpt
 	}
 
 	return
+}
+
+func callJSONRPC(data []byte, v interface{}) error {
+	resp, err := http.Post(rpcServer, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	err = util.ParseResponse(resp.Body, &v)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
