@@ -1,8 +1,12 @@
 package celo
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"math/big"
+	"net/http"
 
 	"github.com/conclave-dev/go-celo/client"
 	"github.com/conclave-dev/go-celo/core/celo"
@@ -53,4 +57,24 @@ func getEpochNumber(opts *bind.CallOpts) (epochNumber *big.Int, err error) {
 	}
 
 	return n.Sub(n, big.NewInt(1)), err
+}
+
+func callJSONRPC(jsonRPC []byte) ([]byte, error) {
+	resp, err := http.Post(rpcServer, "application/json", bytes.NewBuffer(jsonRPC))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
+}
+
+func getBlockByNumber(num *big.Int) ([]byte, error) {
+	var jsonRPC = []byte(fmt.Sprintf(`{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x%x", true],"id":1}`, num.Int64()))
+	return callJSONRPC(jsonRPC)
+}
+
+func getBlockNumber() ([]byte, error) {
+	var jsonRPC = []byte(`{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}`)
+	return callJSONRPC(jsonRPC)
 }
