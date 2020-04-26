@@ -2,6 +2,7 @@ package celo
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/conclave-dev/celoist-backend/kvstore"
@@ -9,20 +10,20 @@ import (
 	"github.com/conclave-dev/go-celo/util"
 )
 
-const (
-	celoRPCAPI = "https://geth.celoist.com"
-)
-
 func init() {
-	util.SetupClients()
+	util.SetupClients(rpcServer, registryContractAddress)
 }
 
 func handleElection(w http.ResponseWriter, r *http.Request) {
 	var election []byte
 	var err error
 
-	opts := getCallOpts(w, r)
-	epochNumber, err := getEpochNumber(opts)
+	callOpts, err := getCallOpts(w, r)
+	if err != nil {
+		util.RespondWithError(err, r, w)
+	}
+
+	epochNumber, err := getEpochNumber(callOpts)
 	if err != nil {
 		util.RespondWithError(err, r, w)
 	}
@@ -35,7 +36,7 @@ func handleElection(w http.ResponseWriter, r *http.Request) {
 			util.RespondWithError(err, r, w)
 		}
 	} else {
-		e, err := setElection(opts, ens)
+		e, err := setElection(callOpts, ens)
 		if err != nil {
 			util.RespondWithError(err, r, w)
 		}
@@ -51,4 +52,27 @@ func handleElection(w http.ResponseWriter, r *http.Request) {
 	util.RespondWithData(election, w)
 
 	return
+}
+
+func handleBlock(w http.ResponseWriter, r *http.Request) {
+	callOpts, err := getCallOpts(w, r)
+	if err != nil {
+		util.RespondWithError(err, r, w)
+	}
+
+	fmt.Printf(" \n\n\n call opts %+v \n\n\n ", callOpts)
+
+	block, err := getBlockByNumber(callOpts.BlockNumber)
+	if err != nil {
+		util.RespondWithError(err, r, w)
+	}
+
+	d, err := json.Marshal(types.JSONResponse{
+		Data: block,
+	})
+	if err != nil {
+		util.RespondWithError(err, r, w)
+	}
+
+	util.RespondWithData(d, w)
 }
