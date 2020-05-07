@@ -20,7 +20,7 @@ func init() {
 
 // DoesBlockExist checks whether a block already exists at a given number
 func DoesBlockExist(n *big.Int) bool {
-	b, err := HExists(BLOCKS, n.String())
+	b, err := HExists(GetHashKeyForNetwork(BLOCKS), n.String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,25 +30,25 @@ func DoesBlockExist(n *big.Int) bool {
 
 // SetBlock stores block data at a given number
 func SetBlock(n *big.Int, data types.Block) (interface{}, error) {
-	return HSet(BLOCKS, n.String(), StringifyJSON(data))
+	return HSet(GetHashKeyForNetwork(BLOCKS), n.String(), StringifyJSON(data))
 }
 
 // GetBlock retrieves block data at a given number
 func GetBlock(n *big.Int) (string, error) {
-	return HGet(BLOCKS, n.String())
+	return HGet(GetHashKeyForNetwork(BLOCKS), n.String())
 }
 
 // DeleteBlock deletes block data at a given number
 func DeleteBlock(n *big.Int) (interface{}, error) {
-	return HDelete(BLOCKS, n.String())
+	return HDelete(GetHashKeyForNetwork(BLOCKS), n.String())
 }
 
 // SetSyncedBlockNumber stores block data at a given number
 func SetSyncedBlockNumber(n *big.Int) (interface{}, error) {
-	return Set(SYNCED_BLOCK_NUMBER, n.String())
+	return Set(GetHashKeyForNetwork(SYNCED_BLOCK_NUMBER), n.String())
 }
 
 // GetSyncedBlockNumber retrieves block data at a given number
 func GetSyncedBlockNumber() (string, error) {
-	return Get(SYNCED_BLOCK_NUMBER)
+	return Get(GetHashKeyForNetwork(SYNCED_BLOCK_NUMBER))
 }

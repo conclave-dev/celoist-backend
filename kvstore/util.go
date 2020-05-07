@@ -3,6 +3,8 @@ package kvstore
 import (
 	"encoding/json"
 	"log"
+
+	"github.com/conclave-dev/celoist-backend/util"
 )
 
 // StringifyJSON converts the JSON object into a string
@@ -16,10 +18,11 @@ func StringifyJSON(data interface{}) string {
 }
 
 // GetHashKeyForNetwork returns the hash key for the specified base key and networkID
-func GetHashKeyForNetwork(baseKey string, networkID string) string {
+func GetHashKeyForNetwork(baseKey string) string {
+	const networkID = "baklava"
 	var supportedNetwork = false
 
-	for _, identifier := range NETWORK_IDENTIFIERS {
+	for _, identifier := range util.NetworkIdentifiers {
 		if identifier == networkID {
 			supportedNetwork = true
 			break
