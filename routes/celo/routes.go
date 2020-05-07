@@ -8,4 +8,5 @@ import (
 func AddRoutes(router *mux.Router) {
 	router.HandleFunc("/celo/election", handleElection)
 	router.HandleFunc("/celo/block", handleBlock)
+	router.HandleFunc("/celo/blockNumber", handleBlockNumber)
 }
