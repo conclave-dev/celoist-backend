@@ -43,7 +43,7 @@ func getCallOpts(w http.ResponseWriter, r *http.Request) (callOpts *bind.CallOpt
 }
 
 func callJSONRPC(data []byte, v interface{}) error {
-	resp, err := http.Post(rpcServer, "application/json", bytes.NewBuffer(data))
+	resp, err := http.Post(util.NetworkEndpoint, "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}

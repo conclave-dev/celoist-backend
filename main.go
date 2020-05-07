@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
+	"github.com/joho/godotenv"
 
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
@@ -15,6 +17,9 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/conclave-dev/celoist-backend/routes"
+	commonUtil "github.com/conclave-dev/celoist-backend/util"
+
+	"github.com/conclave-dev/go-celo/util"
 )
 
 var rateLimiter *limiter.Limiter
@@ -52,6 +57,15 @@ func main() {
 }
 
 func startServer() {
+	// Load .env and set the networkID for the backend server
+	err := godotenv.Load()
+	if err != nil {
+		panic("Error loading .env file")
+	}
+
+	commonUtil.SetNetworkID(os.Getenv("NETWORK_ID"))
+	util.SetupClients(commonUtil.NetworkEndpoint, commonUtil.RegistryContractAddress)
+
 	router := mux.NewRouter().StrictSlash(true)
 	routes.SetUpRoutes(router)
 	cors := handlers.CORS(
