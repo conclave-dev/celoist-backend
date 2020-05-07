@@ -17,7 +17,7 @@ func StringifyJSON(data interface{}) string {
 	return string(b[:])
 }
 
-// GetHashKeyForNetwork returns the hash key for the specified base key and networkID
-func GetHashKeyForNetwork(baseKey string) string {
+// GetHashKey returns the hash key for the specified base key and currently set networkID
+func GetHashKey(baseKey string) string {
 	return baseKey + "-" + util.NetworkID
 }
