@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/conclave-dev/celoist-backend/kvstore"
 	"github.com/conclave-dev/go-celo/types"
@@ -66,34 +65,6 @@ func handleBlock(w http.ResponseWriter, r *http.Request) {
 
 	d, err := json.Marshal(types.JSONResponse{
 		Data: block,
-	})
-	if err != nil {
-		util.RespondWithError(err, r, w)
-	}
-
-	util.RespondWithData(d, w)
-}
-
-func handleBlockNumber(w http.ResponseWriter, r *http.Request) {
-	callOpts, err := getCallOpts(w, r)
-	if err != nil {
-		util.RespondWithError(err, r, w)
-	}
-
-	fmt.Printf(" \n\n\n call opts %+v \n\n\n ", callOpts)
-
-	res, err := getBlockNumber()
-	if err != nil {
-		util.RespondWithError(err, r, w)
-	}
-
-	blockNumber, err := strconv.ParseUint(res.Result[2:], 16, 64)
-	if err != nil {
-		util.RespondWithError(err, r, w)
-	}
-
-	d, err := json.Marshal(types.JSONResponse{
-		Data: blockNumber,
 	})
 	if err != nil {
 		util.RespondWithError(err, r, w)
