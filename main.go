@@ -73,14 +73,20 @@ func startServer() {
 		handlers.AllowedOrigins([]string{"*"}),
 	)
 
+	port, isPortSet := os.LookupEnv("PORT")
+	if !isPortSet {
+		// Default to Port 3001
+		port = "3001"
+	}
+
 	server := &http.Server{
-		Addr:         "localhost:3001",
+		Addr:         "localhost:" + port,
 		Handler:      cors(router),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Printf("Starting at 3001")
+	log.Printf("Starting at %s", port)
 	log.Fatal(server.ListenAndServe())
 }
 
