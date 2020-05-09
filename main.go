@@ -17,9 +17,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/conclave-dev/celoist-backend/routes"
-	commonUtil "github.com/conclave-dev/celoist-backend/util"
-
-	"github.com/conclave-dev/go-celo/util"
+	"github.com/conclave-dev/celoist-backend/util"
 )
 
 var rateLimiter *limiter.Limiter
@@ -63,8 +61,8 @@ func startServer() {
 		panic("Error loading .env file")
 	}
 
-	commonUtil.SetNetworkID(os.Getenv("NETWORK_ID"))
-	util.SetupClients(commonUtil.NetworkEndpoint, commonUtil.RegistryContractAddress)
+	// Setup clients for all supported networks
+	util.SetupClients()
 
 	router := mux.NewRouter().StrictSlash(true)
 	routes.SetUpRoutes(router)
