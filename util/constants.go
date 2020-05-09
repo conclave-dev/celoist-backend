@@ -11,3 +11,6 @@ var NetworkEndpoints = [...]string{
 	"https://geth.celoist.com",
 	"https://rpc.celoist.com",
 }
+
+// registryContractAddress stores the address of the contract holding the addresses of Celo contracts
+const registryContractAddress = "0x000000000000000000000000000000000000ce10"

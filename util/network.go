@@ -10,9 +10,6 @@ import (
 	"github.com/conclave-dev/go-celo/core/celo/common/registry"
 )
 
-// registryContractAddress stores the address of the contract holding the addresses of Celo contracts
-const registryContractAddress = "0x000000000000000000000000000000000000ce10"
-
 // rpcClients stores the clients connected to supported networks
 var rpcClients = make([]*ethclient.Client, 0)
 
