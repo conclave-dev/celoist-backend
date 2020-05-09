@@ -14,12 +14,14 @@ func getCelo(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get(fmt.Sprintf("https://api.rss2json.com/v1/api.json?rss_url=%s%s", mediumFeedBase, "celoorg"))
 	if err != nil {
 		util.RespondWithError(err, r, w)
+		return
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		util.RespondWithError(err, r, w)
+		return
 	}
 
 	util.RespondWithData(body, w)
