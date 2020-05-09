@@ -1,29 +1,81 @@
 package util
 
-// NetworkID stores the identifier of the network currently served by the server
-var NetworkID = ""
+import (
+	"errors"
+	"log"
 
-// NetworkOrder stores the internal index/order of the currently selected network
-var NetworkOrder = -1
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 
-// NetworkEndpoint stores the url endpoint of the currently selected network
-var NetworkEndpoint = ""
+	"github.com/conclave-dev/go-celo/core/celo/common/registry"
+)
 
-// RegistryContractAddress stores the address of the contract holding the addresses of Celo contracts
-const RegistryContractAddress = "0x000000000000000000000000000000000000ce10"
+// registryContractAddress stores the address of the contract holding the addresses of Celo contracts
+const registryContractAddress = "0x000000000000000000000000000000000000ce10"
 
-// SetNetworkID sets the networkID used by the backend server
-func SetNetworkID(networkID string) {
+// rpcClients stores the clients connected to supported networks
+var rpcClients = make([]*ethclient.Client, 0)
+
+// registryCallers stores the registry contract instance for supported networks
+var registryCallers = make([]*registry.RegistryCaller, 0)
+
+// SetupClients initializes and caches the RPC clients as well as the registry callers for all supported networks
+func SetupClients() {
+	for idx := range NetworkIdentifiers {
+		client, err := ethclient.Dial(NetworkEndpoints[idx])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		rpcClients = append(rpcClients, client)
+
+		address := common.HexToAddress(registryContractAddress)
+		caller, err := registry.NewRegistryCaller(address, client)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		registryCallers = append(registryCallers, caller)
+	}
+}
+
+// GetNetworkIndex finds the index of the specified networkID, returns -1 if invalid/not found
+func GetNetworkIndex(networkID string) int {
 	for idx, identifier := range NetworkIdentifiers {
 		if identifier == networkID {
-			NetworkOrder = idx
-			NetworkID = identifier
-			NetworkEndpoint = NetworkEndpoints[NetworkOrder]
-			break
+			return idx
 		}
 	}
 
-	if NetworkOrder == -1 {
-		panic("Invalid or unsupported network")
+	return -1
+}
+
+// GetNetworkClient returns the network RPC client
+func GetNetworkClient(networkID string) (*ethclient.Client, error) {
+	index := GetNetworkIndex(networkID)
+	if index != -1 {
+		return rpcClients[index], nil
 	}
+
+	return nil, errors.New("Invalid or unsupported network")
+}
+
+// GetNetworkRegistry returns the network registry caller
+func GetNetworkRegistry(networkID string) (*registry.RegistryCaller, error) {
+	index := GetNetworkIndex(networkID)
+	if index != -1 {
+		return registryCallers[index], nil
+	}
+
+	return nil, errors.New("Invalid or unsupported network")
+}
+
+// GetNetworkEndpoint returns the API URL for the specified network
+func GetNetworkEndpoint(networkID string) (string, error) {
+	index := GetNetworkIndex(networkID)
+	if index != -1 {
+		return NetworkEndpoints[index], nil
+	}
+
+	return "", errors.New("Invalid or unsupported network")
 }
