@@ -3,12 +3,10 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
-	"github.com/joho/godotenv"
 
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
@@ -55,12 +53,6 @@ func main() {
 }
 
 func startServer() {
-	// Load .env and set the networkID for the backend server
-	err := godotenv.Load()
-	if err != nil {
-		panic("Error loading .env file")
-	}
-
 	// Setup clients for all supported networks
 	util.SetupClients()
 
@@ -71,20 +63,14 @@ func startServer() {
 		handlers.AllowedOrigins([]string{"*"}),
 	)
 
-	port, isPortSet := os.LookupEnv("PORT")
-	if !isPortSet {
-		// Default to Port 3001
-		port = "3001"
-	}
-
 	server := &http.Server{
-		Addr:         "localhost:" + port,
+		Addr:         "localhost:3001",
 		Handler:      cors(router),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Printf("Starting at %s", port)
+	log.Printf("Starting at 3001")
 	log.Fatal(server.ListenAndServe())
 }
 

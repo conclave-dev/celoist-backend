@@ -10,7 +10,6 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
-	github.com/joho/godotenv v1.3.0
 	github.com/mattn/go-isatty v0.0.11 // indirect
 	github.com/miguelmota/go-solidity-sha3 v0.1.0
 	golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0 // indirect
