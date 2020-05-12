@@ -5,11 +5,11 @@ import (
 	"math/big"
 )
 
-func getBlockByNumber(num *big.Int) (GetBlockByNumberResponse, error) {
+func getBlockByNumber(networkID string, num *big.Int) (GetBlockByNumberResponse, error) {
 	d := []byte(fmt.Sprintf(`{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x%x", true],"id":1}`, num.Int64()))
 
 	var v GetBlockByNumberResponse
-	err := callJSONRPC(d, &v)
+	err := callJSONRPC(networkID, d, &v)
 	if err != nil {
 		return v, err
 	}
@@ -17,10 +17,10 @@ func getBlockByNumber(num *big.Int) (GetBlockByNumberResponse, error) {
 	return v, nil
 }
 
-func getBlockNumber() (GetBlockNumberResponse, error) {
+func getBlockNumber(networkID string) (GetBlockNumberResponse, error) {
 	d := []byte(`{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}`)
 	var v GetBlockNumberResponse
-	err := callJSONRPC(d, &v)
+	err := callJSONRPC(networkID, d, &v)
 	if err != nil {
 		return v, err
 	}

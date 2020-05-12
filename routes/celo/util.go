@@ -2,16 +2,21 @@ package celo
 
 import (
 	"bytes"
+	"log"
 	"net/http"
 
+	solsha3 "github.com/miguelmota/go-solidity-sha3"
+
 	"github.com/conclave-dev/celoist-backend/util"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // Define default values for callOpts struct's fields
-func setCallOptsDefaults() (callOpts *bind.CallOpts, err error) {
-	j, err := getBlockNumber()
+func setCallOptsDefaults(networkID string) (callOpts *bind.CallOpts, err error) {
+	j, err := getBlockNumber(networkID)
 	if err != nil {
 		return
 	}
@@ -29,21 +34,26 @@ func setCallOptsDefaults() (callOpts *bind.CallOpts, err error) {
 	return callOpts, err
 }
 
-func getCallOpts(w http.ResponseWriter, r *http.Request) (callOpts *bind.CallOpts, err error) {
+func getCallOpts(networkID string, w http.ResponseWriter, r *http.Request) (callOpts *bind.CallOpts, err error) {
 	err = util.ParseResponse(r.Body, &callOpts)
 	if err != nil {
 		return
 	}
 
 	if callOpts == nil {
-		return setCallOptsDefaults()
+		return setCallOptsDefaults(networkID)
 	}
 
 	return
 }
 
-func callJSONRPC(data []byte, v interface{}) error {
-	resp, err := http.Post(rpcServer, "application/json", bytes.NewBuffer(data))
+func callJSONRPC(networkID string, data []byte, v interface{}) error {
+	endpoint, err := util.GetNetworkEndpoint(networkID)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}
@@ -55,4 +65,23 @@ func callJSONRPC(data []byte, v interface{}) error {
 	}
 
 	return err
+}
+
+func getContractAddress(networkID string, contract string) common.Address {
+	hash := solsha3.SoliditySHA3([]string{"string"}, []interface{}{contract})
+
+	var rawAddress [32]byte
+	copy(rawAddress[:], hash)
+
+	registryCaller, err := util.GetNetworkRegistry(networkID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	contractAddress, err := registryCaller.GetAddressFor(nil, rawAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return contractAddress
 }

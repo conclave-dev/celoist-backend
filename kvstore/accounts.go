@@ -7,8 +7,8 @@ import (
 )
 
 // DoesAccountExist checks whether a block already exists at a given number
-func DoesAccountExist(addr common.Address) bool {
-	b, err := HExists(BLOCKS, addr.String())
+func DoesAccountExist(networkID string, addr common.Address) bool {
+	b, err := HExists(GetHashKey(networkID, BLOCKS), addr.String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -17,16 +17,16 @@ func DoesAccountExist(addr common.Address) bool {
 }
 
 // SetAccount stores block data at a given number
-func SetAccount(addr common.Address, data Account) (interface{}, error) {
-	return HSet(BLOCKS, addr.String(), StringifyJSON(data))
+func SetAccount(networkID string, addr common.Address, data Account) (interface{}, error) {
+	return HSet(GetHashKey(networkID, BLOCKS), addr.String(), StringifyJSON(data))
 }
 
 // GetAccount retrieves block data at a given number
-func GetAccount(addr common.Address) (string, error) {
-	return HGet(BLOCKS, addr.String())
+func GetAccount(networkID string, addr common.Address) (string, error) {
+	return HGet(GetHashKey(networkID, BLOCKS), addr.String())
 }
 
 // DeleteAccount deletes block data at a given number
-func DeleteAccount(addr common.Address) (interface{}, error) {
-	return HDelete(BLOCKS, addr.String())
+func DeleteAccount(networkID string, addr common.Address) (interface{}, error) {
+	return HDelete(GetHashKey(networkID, BLOCKS), addr.String())
 }

@@ -7,20 +7,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-func init() {
-	// Get synced block number on load and set to 0 if does not exist
-	_, err := GetSyncedBlockNumber()
-	if err != nil {
-		_, err := SetSyncedBlockNumber(big.NewInt(0))
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-}
-
 // DoesBlockExist checks whether a block already exists at a given number
-func DoesBlockExist(n *big.Int) bool {
-	b, err := HExists(BLOCKS, n.String())
+func DoesBlockExist(networkID string, n *big.Int) bool {
+	b, err := HExists(GetHashKey(networkID, BLOCKS), n.String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,26 +18,26 @@ func DoesBlockExist(n *big.Int) bool {
 }
 
 // SetBlock stores block data at a given number
-func SetBlock(n *big.Int, data types.Block) (interface{}, error) {
-	return HSet(BLOCKS, n.String(), StringifyJSON(data))
+func SetBlock(networkID string, n *big.Int, data types.Block) (interface{}, error) {
+	return HSet(GetHashKey(networkID, BLOCKS), n.String(), StringifyJSON(data))
 }
 
 // GetBlock retrieves block data at a given number
-func GetBlock(n *big.Int) (string, error) {
-	return HGet(BLOCKS, n.String())
+func GetBlock(networkID string, n *big.Int) (string, error) {
+	return HGet(GetHashKey(networkID, BLOCKS), n.String())
 }
 
 // DeleteBlock deletes block data at a given number
-func DeleteBlock(n *big.Int) (interface{}, error) {
-	return HDelete(BLOCKS, n.String())
+func DeleteBlock(networkID string, n *big.Int) (interface{}, error) {
+	return HDelete(GetHashKey(networkID, BLOCKS), n.String())
 }
 
 // SetSyncedBlockNumber stores block data at a given number
-func SetSyncedBlockNumber(n *big.Int) (interface{}, error) {
-	return Set(SYNCED_BLOCK_NUMBER, n.String())
+func SetSyncedBlockNumber(networkID string, n *big.Int) (interface{}, error) {
+	return Set(GetHashKey(networkID, SYNCED_BLOCK_NUMBER), n.String())
 }
 
 // GetSyncedBlockNumber retrieves block data at a given number
-func GetSyncedBlockNumber() (string, error) {
-	return Get(SYNCED_BLOCK_NUMBER)
+func GetSyncedBlockNumber(networkID string) (string, error) {
+	return Get(GetHashKey(networkID, SYNCED_BLOCK_NUMBER))
 }

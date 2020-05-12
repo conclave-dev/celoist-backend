@@ -5,40 +5,47 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/conclave-dev/celoist-backend/util"
+
 	"github.com/conclave-dev/celoist-backend/kvstore"
 	"github.com/conclave-dev/go-celo/types"
-	"github.com/conclave-dev/go-celo/util"
 )
-
-func init() {
-	util.SetupClients(rpcServer, registryContractAddress)
-}
 
 func handleElection(w http.ResponseWriter, r *http.Request) {
 	var election []byte
 	var err error
 
-	callOpts, err := getCallOpts(w, r)
+	networkID, err := util.ParseNetworkID(r)
 	if err != nil {
 		util.RespondWithError(err, r, w)
+		return
 	}
 
-	epochNumber, err := getEpochNumber(callOpts)
+	callOpts, err := getCallOpts(networkID, w, r)
 	if err != nil {
 		util.RespondWithError(err, r, w)
+		return
+	}
+
+	epochNumber, err := getEpochNumber(networkID, callOpts)
+	if err != nil {
+		util.RespondWithError(err, r, w)
+		return
 	}
 
 	ens := epochNumber.String()
 
-	if kvstore.DoesElectionExist(ens) {
-		election, err = getElection(ens)
+	if kvstore.DoesElectionExist(networkID, ens) {
+		election, err = getElection(networkID, ens)
 		if err != nil {
 			util.RespondWithError(err, r, w)
+			return
 		}
 	} else {
-		e, err := setElection(callOpts, ens)
+		e, err := setElection(networkID, callOpts, ens)
 		if err != nil {
 			util.RespondWithError(err, r, w)
+			return
 		}
 
 		election, err = json.Marshal(types.JSONResponse{
@@ -46,6 +53,7 @@ func handleElection(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			util.RespondWithError(err, r, w)
+			return
 		}
 	}
 
@@ -55,16 +63,24 @@ func handleElection(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleBlock(w http.ResponseWriter, r *http.Request) {
-	callOpts, err := getCallOpts(w, r)
+	networkID, err := util.ParseNetworkID(r)
 	if err != nil {
 		util.RespondWithError(err, r, w)
+		return
+	}
+
+	callOpts, err := getCallOpts(networkID, w, r)
+	if err != nil {
+		util.RespondWithError(err, r, w)
+		return
 	}
 
 	fmt.Printf(" \n\n\n call opts %+v \n\n\n ", callOpts)
 
-	block, err := getBlockByNumber(callOpts.BlockNumber)
+	block, err := getBlockByNumber(networkID, callOpts.BlockNumber)
 	if err != nil {
 		util.RespondWithError(err, r, w)
+		return
 	}
 
 	d, err := json.Marshal(types.JSONResponse{
@@ -72,6 +88,7 @@ func handleBlock(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		util.RespondWithError(err, r, w)
+		return
 	}
 
 	util.RespondWithData(d, w)

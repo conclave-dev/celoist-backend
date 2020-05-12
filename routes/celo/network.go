@@ -4,7 +4,8 @@ import (
 	"log"
 	"math/big"
 
-	"github.com/conclave-dev/go-celo/client"
+	"github.com/conclave-dev/celoist-backend/util"
+
 	"github.com/conclave-dev/go-celo/core/celo"
 	"github.com/conclave-dev/go-celo/core/celo/common/accounts"
 	"github.com/conclave-dev/go-celo/core/celo/governance/election"
@@ -12,10 +13,15 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
-func getAccountsContract() *accounts.Accounts {
+func getAccountsContract(networkID string) *accounts.Accounts {
 	// Use the predefined address for the RegistryContract
-	contractAddress := celo.GetContractAddress(celo.Accounts, client.EthClient)
-	contract, err := accounts.NewAccounts(contractAddress, client.EthClient)
+	rpcClient, err := util.GetNetworkClient(networkID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	contractAddress := getContractAddress(networkID, celo.Accounts)
+	contract, err := accounts.NewAccounts(contractAddress, rpcClient)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,10 +29,15 @@ func getAccountsContract() *accounts.Accounts {
 	return contract
 }
 
-func getElectionContract() *election.Election {
+func getElectionContract(networkID string) *election.Election {
 	// Use the predefined address for the RegistryContract
-	contractAddress := celo.GetContractAddress(celo.Election, client.EthClient)
-	contract, err := election.NewElection(contractAddress, client.EthClient)
+	rpcClient, err := util.GetNetworkClient(networkID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	contractAddress := getContractAddress(networkID, celo.Election)
+	contract, err := election.NewElection(contractAddress, rpcClient)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,10 +45,15 @@ func getElectionContract() *election.Election {
 	return contract
 }
 
-func getValidatorsContract() *validators.Validators {
+func getValidatorsContract(networkID string) *validators.Validators {
 	// Use the predefined address for the RegistryContract
-	contractAddress := celo.GetContractAddress(celo.Validators, client.EthClient)
-	contract, err := validators.NewValidators(contractAddress, client.EthClient)
+	rpcClient, err := util.GetNetworkClient(networkID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	contractAddress := getContractAddress(networkID, celo.Validators)
+	contract, err := validators.NewValidators(contractAddress, rpcClient)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,10 +61,11 @@ func getValidatorsContract() *validators.Validators {
 	return contract
 }
 
-func getEpochNumber(opts *bind.CallOpts) (epochNumber *big.Int, err error) {
-	contract := getValidatorsContract()
+func getEpochNumber(networkID string, opts *bind.CallOpts) (epochNumber *big.Int, err error) {
+	contract := getValidatorsContract(networkID)
 	n, err := contract.GetEpochNumber(opts)
 	if err != nil {
+		log.Fatal(err)
 		return
 	}
 

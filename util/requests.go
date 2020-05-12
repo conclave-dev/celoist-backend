@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 // RespondWithData acts as a wrapper for writing out a successful response
@@ -68,6 +70,7 @@ func HandleJSONDecodeError(err error) error {
 	}
 }
 
+// ParseResponse parses the returned response and format it properly
 func ParseResponse(body io.Reader, param interface{}) error {
 	d := json.NewDecoder(body)
 	d.DisallowUnknownFields()
@@ -80,4 +83,17 @@ func ParseResponse(body io.Reader, param interface{}) error {
 	}
 
 	return nil
+}
+
+// ParseNetworkID parses and validate the included networkID on the request object
+func ParseNetworkID(r *http.Request) (string, error) {
+	vars := mux.Vars(r)
+	networkID := vars["networkID"]
+
+	index := GetNetworkIndex(networkID)
+	if index != -1 {
+		return networkID, nil
+	}
+
+	return "", errors.New("Invalid or unsupported network")
 }
