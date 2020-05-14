@@ -17,26 +17,38 @@ func Dial() redis.Conn {
 	return client
 }
 
-func Exists(hashKey string, field string) (bool, error) {
+func HExists(hashKey string, field string) (bool, error) {
 	client := Dial()
 	defer client.Close()
 	return redis.Bool(client.Do("HEXISTS", hashKey, field))
 }
 
-func Set(hashKey string, field string, value string) (interface{}, error) {
+func HSet(hashKey string, field string, value string) (interface{}, error) {
 	client := Dial()
 	defer client.Close()
 	return client.Do("HSET", hashKey, field, value)
 }
 
-func Get(hashKey string, field string) (string, error) {
+func HGet(hashKey string, field string) (string, error) {
 	client := Dial()
 	defer client.Close()
 	return redis.String(client.Do("HGET", hashKey, field))
 }
 
-func Delete(hashKey string, field string) (interface{}, error) {
+func HDelete(hashKey string, field string) (interface{}, error) {
 	client := Dial()
 	defer client.Close()
 	return client.Do("HDEL", hashKey, field)
+}
+
+func Set(key string, value string) (interface{}, error) {
+	client := Dial()
+	defer client.Close()
+	return client.Do("SET", key, value)
+}
+
+func Get(key string) (string, error) {
+	client := Dial()
+	defer client.Close()
+	return redis.String(client.Do("GET", key))
 }

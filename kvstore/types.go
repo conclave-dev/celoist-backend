@@ -4,6 +4,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 type GroupAddresses []common.Address
@@ -37,4 +38,9 @@ type Member struct {
 	Score          *big.Int       `json:"score"`
 	ECDSAPublicKey []byte         `json:"ecdsaPublicKey"`
 	BLSPublicKey   []byte         `json:"blsPublicKey"`
+}
+
+type Account struct {
+	Address      common.Address     `json:"address"`
+	Transactions types.Transactions `json:"transactions"`
 }

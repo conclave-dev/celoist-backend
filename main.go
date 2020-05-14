@@ -15,6 +15,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/conclave-dev/celoist-backend/routes"
+	"github.com/conclave-dev/celoist-backend/util"
 )
 
 var rateLimiter *limiter.Limiter
@@ -52,6 +53,9 @@ func main() {
 }
 
 func startServer() {
+	// Setup clients for all supported networks
+	util.SetupClients()
+
 	router := mux.NewRouter().StrictSlash(true)
 	routes.SetUpRoutes(router)
 	cors := handlers.CORS(

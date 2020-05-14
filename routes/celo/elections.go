@@ -11,16 +11,16 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func getTotalVotesForEligibleValidatorGroups(opts *bind.CallOpts) (struct {
+func getTotalVotesForEligibleValidatorGroups(networkID string, opts *bind.CallOpts) (struct {
 	Groups []common.Address
 	Values []*big.Int
 }, error) {
-	contract := getElectionContract()
+	contract := getElectionContract(networkID)
 	return contract.GetTotalVotesForEligibleValidatorGroups(opts)
 }
 
-func getElection(election string) ([]byte, error) {
-	e, err := kvstore.GetElection(election)
+func getElection(networkID string, election string) ([]byte, error) {
+	e, err := kvstore.GetElection(networkID, election)
 	if err != nil {
 		return nil, err
 	}
@@ -36,13 +36,13 @@ func getElection(election string) ([]byte, error) {
 	})
 }
 
-func setElection(opts *bind.CallOpts, election string) (kvstore.Election, error) {
-	g, err := getTotalVotesForEligibleValidatorGroups(opts)
+func setElection(networkID string, opts *bind.CallOpts, election string) (kvstore.Election, error) {
+	g, err := getTotalVotesForEligibleValidatorGroups(networkID, opts)
 	if err != nil {
 		return kvstore.Election{}, err
 	}
 
-	groups, err := getGroups(opts, g.Groups)
+	groups, err := getGroups(networkID, opts, g.Groups)
 	if err != nil {
 		return kvstore.Election{}, err
 	}
@@ -53,7 +53,7 @@ func setElection(opts *bind.CallOpts, election string) (kvstore.Election, error)
 		Groups:         groups,
 	}
 
-	_, err = kvstore.SetElection(election, data)
+	_, err = kvstore.SetElection(networkID, election, data)
 	if err != nil {
 		return kvstore.Election{}, err
 	}
@@ -61,10 +61,10 @@ func setElection(opts *bind.CallOpts, election string) (kvstore.Election, error)
 	return data, nil
 }
 
-func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvstore.Groups, error) {
-	contract := getValidatorsContract()
-	electionContract := getElectionContract()
-	accountsContract := getAccountsContract()
+func getGroups(networkID string, opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvstore.Groups, error) {
+	contract := getValidatorsContract(networkID)
+	electionContract := getElectionContract(networkID)
+	accountsContract := getAccountsContract(networkID)
 	groups := make(kvstore.Groups)
 
 	fetchGroup := func(groupAddress common.Address, wg *sync.WaitGroup, mu *sync.Mutex) (err error) {
@@ -84,7 +84,7 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 
 		capacity, err := electionContract.GetNumVotesReceivable(opts, groupAddress)
 
-		members, err := getMembers(opts, memberAddresses)
+		members, err := getMembers(networkID, opts, memberAddresses)
 		if err != nil {
 			return
 		}
@@ -119,9 +119,9 @@ func getGroups(opts *bind.CallOpts, groupAddresses kvstore.GroupAddresses) (kvst
 	return groups, nil
 }
 
-func getMembers(opts *bind.CallOpts, memberAddresses kvstore.MemberAddresses) (kvstore.Members, error) {
-	contract := getValidatorsContract()
-	accountsContract := getAccountsContract()
+func getMembers(networkID string, opts *bind.CallOpts, memberAddresses kvstore.MemberAddresses) (kvstore.Members, error) {
+	contract := getValidatorsContract(networkID)
+	accountsContract := getAccountsContract(networkID)
 	members := make(kvstore.Members)
 
 	fetchGroup := func(memberAddress common.Address, wg *sync.WaitGroup, mu *sync.Mutex) (err error) {
